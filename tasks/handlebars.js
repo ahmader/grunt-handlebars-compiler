@@ -67,7 +67,8 @@ module.exports = function(grunt) {
 		}
 
 		// decide template midfix
-		midfix = 'var template = Handlebars.template, templates = ' + options.namespace + ' = ' + options.namespace + ' || {};\n';
+		midfix = 'this["' + options.namespace + '"] = this["' + options.namespace + '"] || {};\n';
+		//midfix = 'var templates = ' + options.namespace + ' = ' + options.namespace + ' || {};\n';
 
 		// assign filename processing (this decides template name under namespace)
 		processFilename = options.processFilename || defaultProcessFilename;
@@ -134,9 +135,9 @@ module.exports = function(grunt) {
 
 				// source is compiled at this point, let us reconstruct and decide wrappings
 				if (options.partials) {
-					wrapOpen = 'Handlebars.partials[\'' + filename + '\'] = template(';
+					wrapOpen = 'Handlebars.partials[\'' + filename + '\'] = Handlebars.template(';
 				} else {
-					wrapOpen = 'templates[\'' + filename + '\'] = template(';
+					wrapOpen = 'this["templates"][\'' + filename + '\'] = Handlebars.template(';
 				}
 
 				wrapClose = ');\n';
