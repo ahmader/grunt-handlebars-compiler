@@ -53,7 +53,7 @@ module.exports = function(grunt) {
 		} else if (options.exportAMD) {
 			prefix = 'define([\'' + options.pathToHandlebars + 'handlebars\'], function (Handlebars) {\n';
 			grunt.log.writeln('Compiling as AMD/RequireJS module(s).');
-			suffix = '});';
+			suffix = 'return this["templates"];\n});';
 		} else if (options.exportCommonJS) {
 			if (typeof options.exportCommonJS !== 'string') {
 				grunt.fail.warn('Must provide a path to Handlebars module in order to compile as a CommonJS module.');
@@ -67,8 +67,8 @@ module.exports = function(grunt) {
 		}
 
 		// decide template midfix
-		midfix = 'this["' + options.namespace + '"] = this["' + options.namespace + '"] || {};\n';
 		//midfix = 'var templates = ' + options.namespace + ' = ' + options.namespace + ' || {};\n';
+		midfix = 'this["' + options.namespace + '"] = this["' + options.namespace + '"] || {};\n';
 
 		// assign filename processing (this decides template name under namespace)
 		processFilename = options.processFilename || defaultProcessFilename;
@@ -143,7 +143,8 @@ module.exports = function(grunt) {
 				wrapClose = ');\n';
 
 				// finally, put it all back together
-				compiled = prefix + midfix + wrapOpen + compiled + wrapClose + suffix;
+				//compiled = prefix + midfix + wrapOpen + compiled + wrapClose + suffix;
+				compiled = wrapOpen + compiled + wrapClose;
 				templates.push(compiled);
 			});
 
@@ -152,7 +153,9 @@ module.exports = function(grunt) {
 			if (output.length < 1) {
 				grunt.log.warn('Destination not written because there was no output.');
 			} else {
-				grunt.file.write(f.dest, output.join(grunt.util.normalizelf(options.separator)));
+				output = output.join(grunt.util.normalizelf(options.separator));
+                		output = prefix + midfix + output + suffix;
+                		grunt.file.write(f.dest, output);
 				grunt.log.writeln('File "' + f.dest + '" created.');
 			}
 		});
